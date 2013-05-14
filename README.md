@@ -23,3 +23,12 @@ marquee('h1', {
     freezeDelay: 1000 // freeze for a second once one marquee iteration is complete
 });
 ```
+
+Also, `marquee` can detect whether the text fits in it's container using the [measureText](http://www.w3.org/TR/2dcontext/#dom-context-2d-measuretext) for the canvas 2D context:
+
+```js
+// only make a marquee if the text overflows
+marque('h1', {
+    checkOverflow: true
+});
+```
