@@ -1,0 +1,25 @@
+{
+  "name": "marquee",
+  "description": "Amaze your eyes and recapture the magic of the web with scrolling marquees",
+  "author": "Damon Oehlman <damon.oehlman@sidelab.com>",
+  "tags": [
+    "marquee",
+    "browser"
+  ],
+  "version": "0.0.0",
+  "dependencies": {
+    "animator": "0.2.x"
+  },
+  "devDependencies": {
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/DamonOehlman/marquee.git"
+  },
+  "bugs": {
+    "url": "http://github.com/DamonOehlman/marquee/issues"
+  },
+  "scripts": {
+  },
+  "contributors": []
+}
