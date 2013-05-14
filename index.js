@@ -8,14 +8,16 @@
     }
 }(this, function(animator){
 
-    function manifestUnicorn(el) {
+    function manifestUnicorn(el, options) {
         // create a canvas for the el
-        var css = getComputedStyle(el),
+        var opts = options || {},
+            css = getComputedStyle(el),
             canvas = document.createElement('canvas'),
             context = canvas.getContext('2d'),
             width = canvas.width = parseFloat(css.width),
-            height = canvas.height = parseFloat(css.height);
-
+            height = canvas.height = parseFloat(css.height),
+            speed = opts.speed || 1,
+            xPos = 0;
 
         context.font = [
             css.fontVariant,
@@ -26,7 +28,6 @@
 
         context.fillStyle = css.color;
         context.textBaseline = 'middle';
-        context.fillText(el.innerText, 0, height / 2);
 
         // add the canvas
         el.parentNode.insertBefore(canvas, el);
@@ -34,17 +35,38 @@
         // save the original node
         canvas._original = el;
 
+        // create the animation
+        canvas._animation = animator(function(tick) {
+            var text = el.innerText;
+
+            context.clearRect(0, 0, width, height);
+
+            // draw the two marquee sections
+            context.fillText(text, xPos, height / 2);
+            context.fillText(text, xPos + width, height / 2);
+
+            // increment the xpos
+            xPos -= speed;
+
+            if (xPos < -width) {
+                xPos = 0;
+            }
+        });
+
         // remove the element from the dom
         el.parentNode.removeChild(el);
 
         return canvas;
     }
 
-    function marquee(targets) {
+    function marquee(targets, opts) {
         var items;
 
         function restoreItems() {
             items.forEach(function(canvas) {
+                // stop the animation
+                canvas._animation.stop();
+
                 canvas.parentNode.insertBefore(canvas._original, canvas);
                 canvas.parentNode.removeChild(canvas);
             });
@@ -59,7 +81,9 @@
         targets = [].concat(targets || []);
 
         // iterate through the targets and make magic happen
-        items = targets.map(manifestUnicorn);
+        items = targets.map(function(target) {
+            return manifestUnicorn(target, opts);
+        });
 
         return {
             items: items, 
