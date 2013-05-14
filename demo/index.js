@@ -1,9 +1,8 @@
-var marquee = require('../');
+var marquee = require('../'),
+    animations = [];
 
 window.addEventListener('load', function() {
-    var animation = marquee('h1', { speed: 0.5 });
-
-    // marquee('li');
-
-    // setTimeout(animation.stop, 2000);
+    animations.push(marquee('h1', { speed: 500 } ));
+    animations.push(marquee('h2', { checkOverflow: true } ));
+    animations.push(marquee('h3', { speed: 3000, freezeDelay: 4000 } ));
 });

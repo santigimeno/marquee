@@ -16,8 +16,10 @@
             context = canvas.getContext('2d'),
             width = canvas.width = parseFloat(css.width),
             height = canvas.height = parseFloat(css.height),
-            speed = opts.speed || 1,
-            xPos = 0;
+            speed = (opts.speed || 1000) / 1000,
+            xPos = 0,
+            nextIncrementTick = 0,
+            metrics;
 
         context.font = [
             css.fontVariant,
@@ -29,8 +31,13 @@
         context.fillStyle = css.color;
         context.textBaseline = 'middle';
 
-        // add the canvas
-        el.parentNode.insertBefore(canvas, el);
+        // if we need to check the overflow, then measure the text
+        if (opts.checkOverflow) {
+            metrics = context.measureText(el.innerText);
+
+            // if the width 
+            if (metrics.width < width) return;
+        }
 
         // save the original node
         canvas._original = el;
@@ -46,12 +53,22 @@
             context.fillText(text, xPos + width, height / 2);
 
             // increment the xpos
-            xPos -= speed;
+            if (tick > nextIncrementTick) {
+                xPos -= speed;
+            }
 
             if (xPos < -width) {
                 xPos = 0;
+
+                // if we have a freeze time then wait
+                if (opts.freezeDelay) {
+                    nextIncrementTick = tick + opts.freezeDelay;
+                }
             }
         });
+
+        // add the canvas
+        el.parentNode.insertBefore(canvas, el);
 
         // remove the element from the dom
         el.parentNode.removeChild(el);
@@ -64,11 +81,13 @@
 
         function restoreItems() {
             items.forEach(function(canvas) {
-                // stop the animation
-                canvas._animation.stop();
+                if (canvas) {
+                    // stop the animation
+                    canvas._animation.stop();
 
-                canvas.parentNode.insertBefore(canvas._original, canvas);
-                canvas.parentNode.removeChild(canvas);
+                    canvas.parentNode.insertBefore(canvas._original, canvas);
+                    canvas.parentNode.removeChild(canvas);
+                }
             });
         }
 
