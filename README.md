@@ -32,3 +32,11 @@ marque('h1', {
     checkOverflow: true
 });
 ```
+
+## Implementations
+
+Initial implementation was done using Canvas 2D Text, but looked crap on High Density Devices. Has been dropped back to a simple DOM implementation for the moment.
+
+## License
+
+MIT: <http://damonoehlman.mit-license.org/>
