@@ -1,17 +1,81 @@
 (function (root, factory) {
     if (typeof exports === 'object') {
-        module.exports = factory(require('animator'));
+        module.exports = factory(require('animator'), require('crel'), require('stylar'));
     } else if (typeof define === 'function' && define.amd) {
-        define(['animator'], factory);
+        define(['animator', 'crel', 'stylar'], factory);
     } else {
-        root.marquee = factory(root.animator);
+        root.marquee = factory(root.animator, root.crel, root.stylar);
     }
-}(this, function(animator){
+}(this, function(animator, crel, stylar){
 
     function manifestUnicorn(el, options) {
         // create a canvas for the el
         var opts = options || {},
             css = getComputedStyle(el),
+            container = crel('div', { class: el.className }),
+            width = parseFloat(css.width),
+            textElements,
+            propName, propValue,
+            xPos = 0,
+            nextIncrementTick = 0,
+            speed = (opts.speed || 1000) / 1000;
+
+        // extract the properties that need to be set
+        for (propName in css) {
+            propValue = css.getPropertyCSSValue(propName);
+
+            if (propValue) {
+                container.style[propName] = propValue.cssText;
+            }
+        }
+
+        container.style.position = 'relative';
+        container._original = el;
+
+        textElements = [
+            crel('span', el.innerText),
+            crel('span', el.innerText)
+        ];
+
+        // initialise the text elements
+        textElements.forEach(function(text, index) {
+            text.style.font = [
+                css.fontVariant,
+                css.fontWeight,
+                css.fontSize,
+                css.fontFamily
+            ].join(' ');
+
+            text.style.position = 'absolute';
+            text.style.left = '0px';
+            text.style.top = '0px';
+            text.style.width = width + 'px';
+
+            container.appendChild(text);
+        });
+
+        container._animation = animator(function(tick) {
+            // update the xposition of the text
+            stylar(textElements[0], 'transform', 'translateX(' + xPos + 'px) translateZ(0)');
+            stylar(textElements[1], 'transform', 'translateX(' + (xPos + width) + 'px) translateZ(0)');
+
+            // increment the xpos
+            if (tick > nextIncrementTick) {
+                xPos -= speed;
+            }
+
+            if (xPos < -width) {
+                xPos = 0;
+
+                // if we have a freeze time then wait
+                if (opts.freezeDelay) {
+                    nextIncrementTick = tick + opts.freezeDelay;
+                }
+            }
+        });        
+
+        /*
+            newEl = crel(css.display.slice(0, 6) === 'inline' ? 'span' : 'div'),
             canvas = document.createElement('canvas'),
             context = canvas.getContext('2d'),
             width = canvas.width = parseFloat(css.width),
@@ -66,14 +130,15 @@
                 }
             }
         });
+        */
 
         // add the canvas
-        el.parentNode.insertBefore(canvas, el);
+        el.parentNode.insertBefore(container, el);
 
         // remove the element from the dom
         el.parentNode.removeChild(el);
 
-        return canvas;
+        return container;
     }
 
     function marquee(targets, opts) {

@@ -8,7 +8,9 @@
   ],
   "version": "0.1.1",
   "dependencies": {
-    "animator": "0.2.x"
+    "animator": "0.2.x",
+    "crel": "1.0.x",
+    "stylar": "0.2.x"
   },
   "devDependencies": {},
   "repository": {
