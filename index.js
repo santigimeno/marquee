@@ -14,6 +14,7 @@
             css = getComputedStyle(el),
             container = crel('div', { class: el.className }),
             width = parseFloat(css.width),
+            textValue,
             textElements,
             propName, propValue,
             xPos = 0,
@@ -32,9 +33,10 @@
         container.style.position = 'relative';
         container._original = el;
 
+        textValue = (el.innerText || el.textContent);
         textElements = [
-            crel('span', el.innerText),
-            crel('span', el.innerText)
+            crel('span', textValue),
+            crel('span', textValue)
         ];
 
         // initialise the text elements
